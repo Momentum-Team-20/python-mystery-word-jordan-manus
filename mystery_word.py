@@ -15,10 +15,10 @@ def open_and_read_file(file):
     return fileList
 
 
-# selects random word from the list
+# selects random word from the list by getting a random number within the length of fileList and using that as an index
 def random_word_selector(fileList):
     num = random.randint(0, len(fileList)) 
-    randomWord = fileList[num-1]
+    randomWord = fileList[num] #removed -1 from equation
     print(randomWord)
     return randomWord
 
@@ -26,11 +26,10 @@ def random_word_selector(fileList):
 # compares user input to word that computer chose
 def compare_input_to_chosen_word(randomWord, userInput, word, char):
     if userInput in randomWord:
-        print('you guessed correctly')
         replace_underscore_in_sequence(randomWord, userInput, word)
         char += (userInput + " ")
     else:
-        print('character not in word. Try again')
+        print(f"Sorry, there are no {userInput}'s")
         char += (userInput + " ")
     return word, char
 
@@ -44,9 +43,11 @@ def narrow_down_word_choice(userInput):
 
 # validates that user put in only chars that have not been guessed
 def input_validation(userInput, char):
+    # makes sure the user's input is a letter only
     while userInput not in string.ascii_letters:
         userInput = input("Invalid entry! Guess a letter between a and z: ")
 
+    # makes sure the user's input is not in the already guessed list
     while userInput in char:
         userInput = input("Already guessed this letter! Guess a letter between a and z: ")
 
@@ -55,16 +56,22 @@ def input_validation(userInput, char):
 
 # replaces underscore of each correct char in the correct location
 def replace_underscore_in_sequence(randomWord, guess, word):
+    count = 0
     for index in range(len(randomWord)):
         if randomWord[index] == guess:
             word[index] = guess
+            count += 1
+    print(f'Yes, there is {count} of {guess}')
 
 
 # houses program display
-def display(word):
-    print(" ".join(word))
-    
+def display(word, count, char):
+    print(f'You have {count} guesses remaining!')
+    print(f'Used letters: {char}')
+    print(f'Word: {" ".join(word)}')
 
+
+# allows user to play the game. includes calls to most of the functions
 def play_game():
     char = ''
     count = 15
@@ -73,16 +80,35 @@ def play_game():
     word = ['_' for x in randomWord]
 
     while "".join(word) != randomWord and count > 0:
-        print(f'You have {count} guesses remaining!')
-
+        display(word, count, char)        
         guess = input("guess a letter between a and z: ")
         guess = input_validation(guess, char)
         word, char = compare_input_to_chosen_word(randomWord, guess, word, char)
-        display(word)
         count -= 1
-
-    print('congrats!!! you win')
+    
+    return word, randomWord
 
 
 if __name__ == "__main__":
-    play_game()
+    word, randomWord = play_game()
+
+    if "".join(word) == randomWord:
+        print(word)
+        print('Congrats!! You win!')
+    else:
+        print(f'You lose! The word was {randomWord}')
+
+    # asks user if they want to play again and puts it in a loop until they quit 
+    playAgain = input("Press 'y' to play again: ")
+
+    while playAgain == 'y':
+        
+        word, randomWord = play_game()
+
+        if "".join(word) == randomWord:
+            print(word)
+            print('Congrats!! You win!')
+            playAgain = input("Press 'y' to play again: ")
+        else:
+            print(f'You lose! The word was {randomWord}')
+            playAgain = input("Press 'y' to play again: ")
